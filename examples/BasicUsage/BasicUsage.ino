@@ -18,6 +18,10 @@ bool ledState = false;
 unsigned long lastToggle = 0;
 const unsigned long toggleInterval = 10000; // 10 seconds
 
+void onV1ChannelChange(String channelName, JsonVariant value);
+void onV3ChannelChange(String channelName, JsonVariant value);
+void onLedChannelChange(String channelName, JsonVariant value);
+
 void setup() {
     Serial.begin(115200);
     delay(1000);

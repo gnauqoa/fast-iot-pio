@@ -16,7 +16,7 @@
   "includeDir": "include",
   "examples": ["examples/BasicUsage"],
   "dependencies": [
-    "knolleary/PubSubClient",
-    "esp8266/ESP8266WiFi"
+    "knolleary/PubSubClient@2.8.0",
+    "esp8266/ESP8266WiFi@2.7.4"
   ]
 }
