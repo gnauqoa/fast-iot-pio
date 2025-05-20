@@ -1,0 +1,22 @@
+{
+  "name": "fast-iot",
+  "version": "1.0.0",
+  "description": "Fast MQTT wrapper for ESP8266 using deviceId-based channels and token authentication.",
+  "keywords": ["mqtt", "esp8266", "iot", "device", "token"],
+  "authors": [
+    {
+      "name": "Quang",
+      "email": "your.email@example.com"
+    }
+  ],
+  "license": "MIT",
+  "frameworks": "arduino",
+  "platforms": "espressif8266",
+  "srcDir": "src",
+  "includeDir": "include",
+  "examples": ["examples/BasicUsage"],
+  "dependencies": [
+    "knolleary/PubSubClient",
+    "esp8266/ESP8266WiFi"
+  ]
+}
