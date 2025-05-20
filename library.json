@@ -14,7 +14,7 @@
   "platforms": "espressif8266",
   "srcDir": "src",
   "includeDir": "include",
-  "examples": ["examples/BasicUsage"],
+  "examples": ["examples/BasicUsage", "examples/WifiManager"],
   "dependencies": [
     "knolleary/PubSubClient@2.8.0",
     "esp8266/ESP8266WiFi@2.7.4"
