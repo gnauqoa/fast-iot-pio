@@ -1,8 +1,8 @@
 {
   "name": "fast-iot",
   "version": "1.0.0",
-  "description": "Fast MQTT wrapper for ESP8266 using deviceId-based channels and token authentication.",
-  "keywords": ["mqtt", "esp8266", "iot", "device", "token"],
+  "description": "Fast MQTT wrapper for ESP8266 and ESP32 using deviceId-based channels and token authentication.",
+  "keywords": ["mqtt", "esp8266", "esp32", "iot", "device", "token"],
   "authors": [
     {
       "name": "Quang",
