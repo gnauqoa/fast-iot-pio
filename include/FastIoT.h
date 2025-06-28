@@ -1,15 +1,15 @@
 #ifndef FASTIOT_H
 #define FASTIOT_H
 
-#if defined(ESP8266)
-#include "FastIoT_esp8266.cpp"
-#elif defined(ESP32)
-#include "FastIoT_esp32.cpp"
-#else
-#error "Unsupported platform"
-#endif
-
+#include <Arduino.h>
 #include <ArduinoJson.h>
+#include <PubSubClient.h>
+
+#if defined(ESP8266)
+#include <ESP8266WiFi.h>
+#elif defined(ESP32)
+#include <WiFi.h>
+#endif
 
 class FastIoT {
 public:
@@ -24,18 +24,15 @@ public:
     void disconnect();
     bool isConnected();
 
-    // Callback setters
     void setCallback(void (*callback)(String topic, String message));
     void onChannelChange(String channelName, void (*callback)(String channelName, JsonVariant value));
     void removeChannelCallback(String channelName);
 
-    // Publishing data
     bool publishChannelUpdate(String channelName, bool channelValue);
     bool publishChannelUpdate(String channelName, int channelValue);
     bool publishChannelUpdate(String channelName, float channelValue);
     bool publishChannelUpdate(String channelName, String channelValue);
 
-    // Topic getters
     String getDeviceTopic();
     String getUpdateTopic();
 
