@@ -1,8 +1,14 @@
 #ifndef FASTIOT_H
 #define FASTIOT_H
 
-#include <ESP8266WiFi.h>
-#include <PubSubClient.h>
+#if defined(ESP8266)
+#include "FastIoT_esp8266.cpp"
+#elif defined(ESP32)
+#include "FastIoT_esp32.cpp"
+#else
+#error "Unsupported platform"
+#endif
+
 #include <ArduinoJson.h>
 
 class FastIoT {
