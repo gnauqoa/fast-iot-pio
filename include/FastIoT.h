@@ -1,7 +1,7 @@
 #ifndef FASTIOT_H
 #define FASTIOT_H
 
-#include <ESP8266WiFi.h>
+#include <WiFi.h>  // ✅ Changed from <ESP8266WiFi.h> to ESP32's WiFi library
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 

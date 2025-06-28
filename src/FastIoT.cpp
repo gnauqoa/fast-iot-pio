@@ -11,7 +11,6 @@ FastIoT::FastIoT() : mqttClient(wifiClient) {
 }
 
 FastIoT::~FastIoT() {
-    // Clean up channel callbacks
     ChannelCallback* current = channelCallbacks;
     while (current != nullptr) {
         ChannelCallback* next = current->next;
@@ -24,8 +23,8 @@ void FastIoT::begin(String url, int port, String token, String devId) {
     brokerUrl = url;
     brokerPort = port;
     deviceId = devId;
-    
-    // Parse token (username-password format)
+
+    // Parse token
     int dashIndex = token.indexOf('-');
     if (dashIndex > 0) {
         username = token.substring(0, dashIndex);
@@ -34,15 +33,13 @@ void FastIoT::begin(String url, int port, String token, String devId) {
         username = token;
         password = "";
     }
-    
-    // Set up topics
+
     topic = "device/" + deviceId;
     updateTopic = "device/" + deviceId + "/update";
-    
-    // Configure MQTT client
+
     mqttClient.setServer(brokerUrl.c_str(), brokerPort);
     mqttClient.setCallback(internalCallback);
-    
+
     Serial.println("FastIoT Client initialized");
     Serial.println("Device ID: " + deviceId);
     Serial.println("Subscribe Topic: " + topic);
@@ -51,7 +48,7 @@ void FastIoT::begin(String url, int port, String token, String devId) {
 
 bool FastIoT::connectWiFi(String ssid, String wifiPassword) {
     WiFi.begin(ssid.c_str(), wifiPassword.c_str());
-    
+
     Serial.print("Connecting to WiFi");
     int attempts = 0;
     while (WiFi.status() != WL_CONNECTED && attempts < 20) {
@@ -59,7 +56,7 @@ bool FastIoT::connectWiFi(String ssid, String wifiPassword) {
         Serial.print(".");
         attempts++;
     }
-    
+
     if (WiFi.status() == WL_CONNECTED) {
         Serial.println();
         Serial.println("WiFi connected!");
@@ -78,11 +75,18 @@ bool FastIoT::connectMQTT() {
         Serial.println("WiFi not connected. Cannot connect to MQTT.");
         return false;
     }
-    
+
     Serial.print("Connecting to MQTT broker...");
-    
-    String clientId = "ESP8266Client-" + deviceId + "-" + String(random(0xffff), HEX);
-    
+
+    // Ensure random is seeded once (only needed if not already done elsewhere)
+    static bool seeded = false;
+    if (!seeded) {
+        randomSeed(micros());
+        seeded = true;
+    }
+
+    String clientId = "ESP32Client-" + deviceId + "-" + String(random(0xffff), HEX);
+
     if (mqttClient.connect(clientId.c_str(), username.c_str(), password.c_str())) {
         Serial.println(" connected!");
         Serial.println("Connected to MQTT broker. Subscribed to topic: " + topic);
@@ -100,36 +104,32 @@ void FastIoT::setCallback(void (*callback)(String topic, String message)) {
 }
 
 void FastIoT::onChannelChange(String channelName, void (*callback)(String channelName, JsonVariant value)) {
-    // Check if callback already exists for this channel
     ChannelCallback* current = channelCallbacks;
     while (current != nullptr) {
         if (current->channelName == channelName) {
-            // Update existing callback
             current->callback = callback;
             Serial.println("Updated callback for channel: " + channelName);
             return;
         }
         current = current->next;
     }
-    
-    // Create new callback entry
+
     ChannelCallback* newCallback = new ChannelCallback();
     newCallback->channelName = channelName;
     newCallback->callback = callback;
     newCallback->next = channelCallbacks;
     channelCallbacks = newCallback;
-    
+
     Serial.println("Added callback for channel: " + channelName);
 }
 
 void FastIoT::removeChannelCallback(String channelName) {
     ChannelCallback* current = channelCallbacks;
     ChannelCallback* previous = nullptr;
-    
+
     while (current != nullptr) {
         if (current->channelName == channelName) {
             if (previous == nullptr) {
-                // Removing first element
                 channelCallbacks = current->next;
             } else {
                 previous->next = current->next;
@@ -141,124 +141,73 @@ void FastIoT::removeChannelCallback(String channelName) {
         previous = current;
         current = current->next;
     }
-    
+
     Serial.println("Callback not found for channel: " + channelName);
 }
 
 bool FastIoT::subscribe() {
     if (mqttClient.connected()) {
         bool result = mqttClient.subscribe(topic.c_str());
-        if (result) {
-            Serial.println("Successfully subscribed to: " + topic);
-        } else {
-            Serial.println("Failed to subscribe to: " + topic);
-        }
+        Serial.println(result ? "Successfully subscribed to: " + topic
+                              : "Failed to subscribe to: " + topic);
         return result;
     }
     return false;
 }
 
 bool FastIoT::publishChannelUpdate(String channelName, bool channelValue) {
-    if (!mqttClient.connected()) {
-        Serial.println("MQTT not connected. Cannot publish.");
-        return false;
-    }
-    
-    // Create JSON payload
     DynamicJsonDocument doc(1024);
     doc["id"] = deviceId.toInt();
     doc["channelName"] = channelName;
     doc["channelValue"] = channelValue;
-    
+
     String payload;
     serializeJson(doc, payload);
-    
+
     bool result = mqttClient.publish(updateTopic.c_str(), payload.c_str());
-    
-    if (result) {
-        Serial.println("Published: " + payload);
-    } else {
-        Serial.println("Failed to publish message");
-    }
-    
+    Serial.println(result ? "Published: " + payload : "Failed to publish message");
     return result;
 }
 
 bool FastIoT::publishChannelUpdate(String channelName, int channelValue) {
-    if (!mqttClient.connected()) {
-        Serial.println("MQTT not connected. Cannot publish.");
-        return false;
-    }
-    
-    // Create JSON payload
     DynamicJsonDocument doc(1024);
     doc["id"] = deviceId.toInt();
     doc["channelName"] = channelName;
     doc["channelValue"] = channelValue;
-    
+
     String payload;
     serializeJson(doc, payload);
-    
+
     bool result = mqttClient.publish(updateTopic.c_str(), payload.c_str());
-    
-    if (result) {
-        Serial.println("Published: " + payload);
-    } else {
-        Serial.println("Failed to publish message");
-    }
-    
+    Serial.println(result ? "Published: " + payload : "Failed to publish message");
     return result;
 }
 
 bool FastIoT::publishChannelUpdate(String channelName, float channelValue) {
-    if (!mqttClient.connected()) {
-        Serial.println("MQTT not connected. Cannot publish.");
-        return false;
-    }
-    
-    // Create JSON payload
     DynamicJsonDocument doc(1024);
     doc["id"] = deviceId.toInt();
     doc["channelName"] = channelName;
     doc["channelValue"] = channelValue;
-    
+
     String payload;
     serializeJson(doc, payload);
-    
+
     bool result = mqttClient.publish(updateTopic.c_str(), payload.c_str());
-    
-    if (result) {
-        Serial.println("Published: " + payload);
-    } else {
-        Serial.println("Failed to publish message");
-    }
-    
+    Serial.println(result ? "Published: " + payload : "Failed to publish message");
     return result;
 }
 
 bool FastIoT::publishChannelUpdate(String channelName, String channelValue) {
-    if (!mqttClient.connected()) {
-        Serial.println("MQTT not connected. Cannot publish.");
-        return false;
-    }
-    
-    // Create JSON payload
     DynamicJsonDocument doc(1024);
     doc["id"] = deviceId.toInt();
     doc["channelName"] = channelName;
     doc["channelValue"] = channelValue;
-    
+
     String payload;
     serializeJson(doc, payload);
-    
+
     bool result = mqttClient.publish(updateTopic.c_str(), payload.c_str());
-    
-    if (result) {
-        Serial.println("Published: " + payload);
-    } else {
-        Serial.println("Failed to publish message");
-    }
-    
+    Serial.println(result ? "Published: " + payload : "Failed to publish message");
     return result;
 }
 
@@ -292,23 +241,20 @@ String FastIoT::getUpdateTopic() {
 }
 
 void FastIoT::processChannelMessage(String message) {
-    // Parse JSON message
     DynamicJsonDocument doc(1024);
     DeserializationError error = deserializeJson(doc, message);
-    
+
     if (error) {
         Serial.println("Failed to parse message JSON: " + String(error.c_str()));
         return;
     }
-    
-    // Check if message contains channel information
+
     if (doc.containsKey("channelName") && doc.containsKey("channelValue")) {
         String channelName = doc["channelName"];
         JsonVariant channelValue = doc["channelValue"];
-        
+
         Serial.println("Channel update - " + channelName + ": " + channelValue.as<String>());
-        
-        // Find and execute channel-specific callback
+
         ChannelCallback* current = channelCallbacks;
         while (current != nullptr) {
             if (current->channelName == channelName && current->callback != nullptr) {
@@ -320,25 +266,19 @@ void FastIoT::processChannelMessage(String message) {
     }
 }
 
-// Static callback function
 void FastIoT::internalCallback(char* topic, byte* payload, unsigned int length) {
-    // Convert payload to string
     String message = "";
-    for (int i = 0; i < length; i++) {
+    for (unsigned int i = 0; i < length; i++) {
         message += (char)payload[i];
     }
-    
+
     String topicStr = String(topic);
-    
     Serial.println("Received message on " + topicStr + ": " + message);
-    
-    // Process channel-specific callbacks first
+
     if (instance) {
         instance->processChannelMessage(message);
-    }
-    
-    // Call general message callback if set
-    if (instance && instance->messageCallback) {
-        instance->messageCallback(topicStr, message);
+        if (instance->messageCallback) {
+            instance->messageCallback(topicStr, message);
+        }
     }
 }
