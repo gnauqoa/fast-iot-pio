@@ -11,7 +11,14 @@
 #include <WiFi.h>
 #endif
 
-class FastIoT {
+struct ChannelUpdate
+{
+    String name;
+    JsonVariant value;
+};
+
+class FastIoT
+{
 public:
     FastIoT();
     ~FastIoT();
@@ -25,19 +32,20 @@ public:
     bool isConnected();
 
     void setCallback(void (*callback)(String topic, String message));
-    void onChannelChange(String channelName, void (*callback)(String channelName, JsonVariant value));
-    void removeChannelCallback(String channelName);
+    void onChannelChange(String name, void (*callback)(String name, JsonVariant value));
+    void removeChannelCallback(String name);
 
-    bool publishChannelUpdate(String channelName, bool channelValue);
-    bool publishChannelUpdate(String channelName, int channelValue);
-    bool publishChannelUpdate(String channelName, float channelValue);
-    bool publishChannelUpdate(String channelName, String channelValue);
-
+    bool publishChannelUpdate(String name, bool channelValue);
+    bool publishChannelUpdate(String name, int channelValue);
+    bool publishChannelUpdate(String name, float channelValue);
+    bool publishChannelUpdate(String name, String channelValue);
+    bool publishChannelUpdates(ChannelUpdate updates[], size_t count);
+    bool updateLocation(float latitude, float longitude);
     String getDeviceTopic();
     String getUpdateTopic();
 
 private:
-    static FastIoT* instance;
+    static FastIoT *instance;
 
     WiFiClient wifiClient;
     PubSubClient mqttClient;
@@ -52,15 +60,16 @@ private:
 
     void (*messageCallback)(String topic, String message);
 
-    struct ChannelCallback {
-        String channelName;
-        void (*callback)(String channelName, JsonVariant value);
-        ChannelCallback* next;
+    struct ChannelCallback
+    {
+        String name;
+        void (*callback)(String name, JsonVariant value);
+        ChannelCallback *next;
     };
 
-    ChannelCallback* channelCallbacks;
+    ChannelCallback *channelCallbacks;
 
-    static void internalCallback(char* topic, byte* payload, unsigned int length);
+    static void internalCallback(char *topic, byte *payload, unsigned int length);
     void processChannelMessage(String message);
 };
 

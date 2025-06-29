@@ -99,14 +99,14 @@ void FastIoT::setCallback(void (*callback)(String topic, String message)) {
     messageCallback = callback;
 }
 
-void FastIoT::onChannelChange(String channelName, void (*callback)(String channelName, JsonVariant value)) {
+void FastIoT::onChannelChange(String name, void (*callback)(String name, JsonVariant value)) {
     // Check if callback already exists for this channel
     ChannelCallback* current = channelCallbacks;
     while (current != nullptr) {
-        if (current->channelName == channelName) {
+        if (current->name == name) {
             // Update existing callback
             current->callback = callback;
-            Serial.println("Updated callback for channel: " + channelName);
+            Serial.println("Updated callback for channel: " + name);
             return;
         }
         current = current->next;
@@ -114,20 +114,20 @@ void FastIoT::onChannelChange(String channelName, void (*callback)(String channe
     
     // Create new callback entry
     ChannelCallback* newCallback = new ChannelCallback();
-    newCallback->channelName = channelName;
+    newCallback->name = name;
     newCallback->callback = callback;
     newCallback->next = channelCallbacks;
     channelCallbacks = newCallback;
     
-    Serial.println("Added callback for channel: " + channelName);
+    Serial.println("Added callback for channel: " + name);
 }
 
-void FastIoT::removeChannelCallback(String channelName) {
+void FastIoT::removeChannelCallback(String name) {
     ChannelCallback* current = channelCallbacks;
     ChannelCallback* previous = nullptr;
     
     while (current != nullptr) {
-        if (current->channelName == channelName) {
+        if (current->name == name) {
             if (previous == nullptr) {
                 // Removing first element
                 channelCallbacks = current->next;
@@ -135,14 +135,14 @@ void FastIoT::removeChannelCallback(String channelName) {
                 previous->next = current->next;
             }
             delete current;
-            Serial.println("Removed callback for channel: " + channelName);
+            Serial.println("Removed callback for channel: " + name);
             return;
         }
         previous = current;
         current = current->next;
     }
     
-    Serial.println("Callback not found for channel: " + channelName);
+    Serial.println("Callback not found for channel: " + name);
 }
 
 bool FastIoT::subscribe() {
@@ -158,107 +158,102 @@ bool FastIoT::subscribe() {
     return false;
 }
 
-bool FastIoT::publishChannelUpdate(String channelName, bool channelValue) {
+bool FastIoT::publishChannelUpdate(String name, bool channelValue) {
+    DynamicJsonDocument doc(64);
+    doc["value"] = channelValue;
+
+    ChannelUpdate updates[1] = {
+        { name, doc["value"] }
+    };
+
+    return publishChannelUpdates(updates, 1);
+}
+
+bool FastIoT::publishChannelUpdate(String name, int channelValue) {
+    DynamicJsonDocument doc(64);
+    doc["value"] = channelValue;
+
+    ChannelUpdate updates[1] = {
+        { name, doc["value"] }
+    };
+
+    return publishChannelUpdates(updates, 1);
+}
+
+bool FastIoT::publishChannelUpdate(String name, float channelValue) {
+    DynamicJsonDocument doc(64);
+    doc["value"] = channelValue;
+
+    ChannelUpdate updates[1] = {
+        { name, doc["value"] }
+    };
+
+    return publishChannelUpdates(updates, 1);
+}
+
+bool FastIoT::publishChannelUpdate(String name, String channelValue) {
+    DynamicJsonDocument doc(64);
+    doc["value"] = channelValue;
+
+    ChannelUpdate updates[1] = {
+        { name, doc["value"] }
+    };
+
+    return publishChannelUpdates(updates, 1);
+}
+
+bool FastIoT::publishChannelUpdates(ChannelUpdate updates[], size_t count) {
     if (!mqttClient.connected()) {
         Serial.println("MQTT not connected. Cannot publish.");
         return false;
     }
-    
-    // Create JSON payload
     DynamicJsonDocument doc(1024);
     doc["id"] = deviceId.toInt();
-    doc["channelName"] = channelName;
-    doc["channelValue"] = channelValue;
-    
+
+    JsonArray channels = doc.createNestedArray("channels");
+
+    for (size_t i = 0; i < count; i++) {
+        JsonObject chanObj = channels.createNestedObject();
+        chanObj["name"] = updates[i].name;
+        chanObj["value"] = updates[i].value;
+    }
+
     String payload;
     serializeJson(doc, payload);
-    
+
     bool result = mqttClient.publish(updateTopic.c_str(), payload.c_str());
-    
+
     if (result) {
         Serial.println("Published: " + payload);
     } else {
         Serial.println("Failed to publish message");
     }
-    
+
     return result;
 }
 
-bool FastIoT::publishChannelUpdate(String channelName, int channelValue) {
+bool FastIoT::updateLocation(float latitude, float longitude) {
     if (!mqttClient.connected()) {
         Serial.println("MQTT not connected. Cannot publish.");
         return false;
     }
-    
-    // Create JSON payload
-    DynamicJsonDocument doc(1024);
-    doc["id"] = deviceId.toInt();
-    doc["channelName"] = channelName;
-    doc["channelValue"] = channelValue;
-    
-    String payload;
-    serializeJson(doc, payload);
-    
-    bool result = mqttClient.publish(updateTopic.c_str(), payload.c_str());
-    
-    if (result) {
-        Serial.println("Published: " + payload);
-    } else {
-        Serial.println("Failed to publish message");
-    }
-    
-    return result;
-}
 
-bool FastIoT::publishChannelUpdate(String channelName, float channelValue) {
-    if (!mqttClient.connected()) {
-        Serial.println("MQTT not connected. Cannot publish.");
-        return false;
-    }
-    
-    // Create JSON payload
-    DynamicJsonDocument doc(1024);
+    DynamicJsonDocument doc(256);
     doc["id"] = deviceId.toInt();
-    doc["channelName"] = channelName;
-    doc["channelValue"] = channelValue;
-    
-    String payload;
-    serializeJson(doc, payload);
-    
-    bool result = mqttClient.publish(updateTopic.c_str(), payload.c_str());
-    
-    if (result) {
-        Serial.println("Published: " + payload);
-    } else {
-        Serial.println("Failed to publish message");
-    }
-    
-    return result;
-}
+    doc["latitude"] = String(latitude, 6);   // giữ 6 chữ số sau dấu chấm
+    doc["longitude"] = String(longitude, 6);
 
-bool FastIoT::publishChannelUpdate(String channelName, String channelValue) {
-    if (!mqttClient.connected()) {
-        Serial.println("MQTT not connected. Cannot publish.");
-        return false;
-    }
-    
-    // Create JSON payload
-    DynamicJsonDocument doc(1024);
-    doc["id"] = deviceId.toInt();
-    doc["channelName"] = channelName;
-    doc["channelValue"] = channelValue;
-    
     String payload;
     serializeJson(doc, payload);
-    
+
     bool result = mqttClient.publish(updateTopic.c_str(), payload.c_str());
-    
+
     if (result) {
-        Serial.println("Published: " + payload);
+        Serial.println("Published location: " + payload);
     } else {
-        Serial.println("Failed to publish message");
+        Serial.println("Failed to publish location");
     }
-    
+
     return result;
 }
 
@@ -292,7 +287,6 @@ String FastIoT::getUpdateTopic() {
 }
 
 void FastIoT::processChannelMessage(String message) {
-    // Parse JSON message
     DynamicJsonDocument doc(1024);
     DeserializationError error = deserializeJson(doc, message);
     
@@ -300,23 +294,44 @@ void FastIoT::processChannelMessage(String message) {
         Serial.println("Failed to parse message JSON: " + String(error.c_str()));
         return;
     }
-    
-    // Check if message contains channel information
-    if (doc.containsKey("channelName") && doc.containsKey("channelValue")) {
-        String channelName = doc["channelName"];
-        JsonVariant channelValue = doc["channelValue"];
-        
-        Serial.println("Channel update - " + channelName + ": " + channelValue.as<String>());
-        
-        // Find and execute channel-specific callback
-        ChannelCallback* current = channelCallbacks;
-        while (current != nullptr) {
-            if (current->channelName == channelName && current->callback != nullptr) {
-                current->callback(channelName, channelValue);
-                break;
+
+    if (doc.is<JsonArray>()) {
+        JsonArray arr = doc.as<JsonArray>();
+        for (JsonObject obj : arr) {
+            if (obj.containsKey("name") && obj.containsKey("value")) {
+                String name = obj["name"];
+                JsonVariant value = obj["value"];
+
+                Serial.println("Channel update - " + name + ": " + value.as<String>());
+
+                ChannelCallback* current = channelCallbacks;
+                while (current != nullptr) {
+                    if (current->name == name && current->callback != nullptr) {
+                        current->callback(name, value);
+                        break;
+                    }
+                    current = current->next;
+                }
             }
-            current = current->next;
         }
+    } else if (doc.is<JsonObject>()) {
+        if (doc.containsKey("name") && doc.containsKey("value")) {
+            String name = doc["name"];
+            JsonVariant value = doc["value"];
+
+            Serial.println("Channel update - " + name + ": " + value.as<String>());
+
+            ChannelCallback* current = channelCallbacks;
+            while (current != nullptr) {
+                if (current->name == name && current->callback != nullptr) {
+                    current->callback(name, value);
+                    break;
+                }
+                current = current->next;
+            }
+        }
+    } else {
+        Serial.println("Invalid message format");
     }
 }
 
