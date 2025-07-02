@@ -1,4 +1,49 @@
-# FastIoT Library for ESP8266
+<div id="top">
+
+<!-- HEADER STYLE: CONSOLE -->
+<div align="center">
+
+<h1 align="center">
+  <br>
+  <a href="http://www.amitmerchant.com/electron-markdownify"><img src="https://raw.githubusercontent.com/gnauqoa/fast-iot-fe/c8f4e737913bd522e44882d34bd66b855ba340f1/public/fast-iot-no-text.svg"alt="Markdownify" width="200"></a>
+  <br>Fast IoT - ESP32 & ESP8266
+  <br>
+</h1>
+
+<h4 align="center">A framework to quick start IoT project.</h4>
+</div>
+<p align="center">
+ <a href="#features">Features</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#dependencies">Dependencies</a> •
+  <a href="#basic-usage">Basic Usage</a> •
+  <a href="#using-with-platformio">Using with PlatformIO</a> •
+  <a href="#using-wifimanager">Using WiFiManager</a> •
+  <a href="#api-reference">API Reference</a> •
+  <a href="#message-format">Message Format</a> •
+  <a href="#topics">Topics</a> •
+  <a href="#error-handling">Error Handling</a> •
+  <a href="#notes">Notes</a> •
+  <a href="#example-output">Example Output</a> •
+  <a href="#troubleshooting">Troubleshooting</a> •
+  <a href="#license">License</a>
+</p>
+<div align="center">
+<img src="https://img.shields.io/github/license/gnauqoa/fast-iot-pio?style=flat-square&logo=opensourceinitiative&logoColor=white&color=8a2be2" alt="license">
+<img src="https://img.shields.io/github/last-commit/gnauqoa/fast-iot-pio?style=flat-square&logo=git&logoColor=white&color=8a2be2" alt="last-commit">
+<img src="https://img.shields.io/github/languages/top/gnauqoa/fast-iot-pio?style=flat-square&color=8a2be2" alt="repo-top-language">
+<img src="https://img.shields.io/github/languages/count/gnauqoa/fast-iot-pio?style=flat-square&color=8a2be2" alt="repo-language-count">
+</div>
+<div align="center">
+  <img src="https://img.shields.io/badge/PlatformIO-FF6600.svg?style=flat-square&logo=platformio&logoColor=white" alt="PlatformIO">
+  <img src="https://img.shields.io/badge/ESP32-3C3C3C.svg?style=flat-square&logo=espressif&logoColor=white" alt="ESP32">
+  <img src="https://img.shields.io/badge/ESP8266-3C3C3C.svg?style=flat-square&logo=espressif&logoColor=white" alt="ESP8266">
+  <img src="https://img.shields.io/badge/C++-00599C.svg?style=flat-square&logo=c%2B%2B&logoColor=white" alt="C++">
+  <img src="https://img.shields.io/badge/WiFiManager-009688.svg?style=flat-square" alt="WiFiManager">
+  <img src="https://img.shields.io/badge/PubSubClient-4CAF50.svg?style=flat-square" alt="PubSubClient">
+  <img src="https://img.shields.io/badge/MQTT-660066.svg?style=flat-square&logo=MQTT&logoColor=white" alt="MQTT">
+</div>
+</div>
 
 An Arduino IDE library for ESP8266 to connect to MQTT brokers with username/password authentication and channel-specific callbacks, designed to replicate and extend the functionality of the provided Node.js MQTT Client Library.
 
@@ -19,10 +64,12 @@ An Arduino IDE library for ESP8266 to connect to MQTT brokers with username/pass
 ### Arduino IDE
 
 1. Download the library files:
+
    - `FastIoT.h`
    - `FastIoT.cpp`
 
 2. Place them in your Arduino libraries folder:
+
    - Windows: `Documents/Arduino/libraries/FastIoT/`
    - Mac: `~/Documents/Arduino/libraries/FastIoT/`
    - Linux: `~/Arduino/libraries/FastIoT/`
@@ -75,27 +122,27 @@ void onMessageReceived(String topic, String message);
 
 void setup() {
     Serial.begin(115200);
-    
+
     // Initialize MQTT client
     mqttClient.begin("localhost", 1883, "token-password", "deviceId");
-    
+
     // Set message callback
     mqttClient.setCallback(onMessageReceived);
-    
+
     // Connect to WiFi
     mqttClient.connectWiFi("your_ssid", "your_password");
-    
+
     // Connect to MQTT
     mqttClient.connectMQTT();
 }
 
 void loop() {
     mqttClient.loop();
-    
+
     // Publish channel update
     mqttClient.publishChannelUpdate("v1", true);
     mqttClient.publishChannelUpdate("v3", 50);
-    
+
     delay(5000);
 }
 
@@ -333,11 +380,13 @@ void onLedChannelChange(String channelName, JsonVariant value)
 ### Project Setup
 
 1. **Create a new project**:
+
    ```bash
    pio init --board nodemcuv2
    ```
 
 2. **Directory Structure**:
+
    ```
    project_folder/
    ├── lib/
@@ -350,6 +399,7 @@ void onLedChannelChange(String channelName, JsonVariant value)
    ```
 
 3. **Configure platformio.ini**:
+
    ```ini
    [env:nodemcuv2]
    platform = espressif8266
@@ -363,6 +413,7 @@ void onLedChannelChange(String channelName, JsonVariant value)
    ```
 
 4. **Basic main.cpp**:
+
    ```cpp
    #include <Arduino.h>
    #include "FastIoT.h"
@@ -374,16 +425,19 @@ void onLedChannelChange(String channelName, JsonVariant value)
 ### Building and Uploading
 
 1. Build the project:
+
    ```bash
    pio run
    ```
 
 2. Upload to your device:
+
    ```bash
    pio run --target upload
    ```
 
 3. Monitor serial output:
+
    ```bash
    pio device monitor
    ```
@@ -395,17 +449,18 @@ WiFiManager creates a configuration portal if your ESP8266 can't connect to a pr
 ### How it Works
 
 1. **First Boot**: The device creates a WiFi access point (default: "FastIoT-Setup")
-2. **Configuration**: 
+2. **Configuration**:
    - Connect to this access point with your phone/computer
    - A captive portal appears (or browse to 10.0.1.1)
    - Enter your WiFi credentials and MQTT settings
    - Save configuration
 3. **Normal Operation**: Device connects to your WiFi and MQTT server using saved credentials
 4. **Reset**: To reset configuration, you can add code to clear settings:
+
    ```cpp
    // Add to setup() for factory reset:
    // wifiManager.resetSettings();
-   
+
    // Or trigger via a button or command
    if (digitalRead(RESET_PIN) == LOW) {
        wifiManager.resetSettings();
@@ -425,6 +480,7 @@ WiFiManager allows adding custom parameters for MQTT configuration:
 ### Configuration Portal Timeout
 
 Set how long the configuration portal stays active:
+
 ```cpp
 wifiManager.setConfigPortalTimeout(180); // 3 minutes timeout
 ```
@@ -440,104 +496,131 @@ FastIoT()
 ### Methods
 
 #### begin()
+
 ```cpp
 void begin(String url, int port, String token, String deviceId)
 ```
+
 Initialize the MQTT client with connection parameters.
 
 **Parameters:**
+
 - `url`: MQTT broker URL/IP address
 - `port`: MQTT broker port (typically 1883)
 - `token`: Authentication token in format "username-password"
 - `deviceId`: Unique device identifier
 
 #### connectWiFi()
+
 ```cpp
 bool connectWiFi(String ssid, String password)
 ```
+
 Connect to WiFi network.
 
 **Returns:** `true` if connection successful, `false` otherwise
 
 #### connectMQTT()
+
 ```cpp
 bool connectMQTT()
 ```
+
 Connect to MQTT broker using configured credentials.
 
 **Returns:** `true` if connection successful, `false` otherwise
 
 #### setCallback()
+
 ```cpp
 void setCallback(void (*callback)(String topic, String message))
 ```
+
 Set callback function for received messages.
 
 #### onChannelChange()
+
 ```cpp
 void onChannelChange(String channelName, void (*callback)(String channelName, JsonVariant value))
 ```
+
 Set callback function for a specific channel.
 
 **Parameters:**
+
 - `channelName`: Name of the channel to watch (e.g., "v1", "led")
 - `callback`: Function to call when this channel changes
 
 #### subscribe()
+
 ```cpp
 bool subscribe()
 ```
+
 Subscribe to the device topic (`device/{deviceId}`).
 
 **Returns:** `true` if subscription successful, `false` otherwise
 
 #### publishChannelUpdate()
+
 ```cpp
 bool publishChannelUpdate(String channelName, bool channelValue)
 bool publishChannelUpdate(String channelName, int channelValue)
 bool publishChannelUpdate(String channelName, float channelValue)
 bool publishChannelUpdate(String channelName, String channelValue)
 ```
+
 Publish channel update to topic `device/{deviceId}/update`.
 
 **Parameters:**
+
 - `channelName`: Name of the channel (e.g., "v1", "v3")
 - `channelValue`: Value to publish (supports multiple types)
 
 **Returns:** `true` if publish successful, `false` otherwise
 
 #### loop()
+
 ```cpp
 void loop()
 ```
+
 Maintain MQTT connection and handle incoming messages. Call this in your main loop.
 
 #### isConnected()
+
 ```cpp
 bool isConnected()
 ```
+
 Check if MQTT client is connected.
 
 **Returns:** `true` if connected, `false` otherwise
 
 #### disconnect()
+
 ```cpp
 void disconnect()
 ```
+
 Disconnect from MQTT broker.
 
 #### getDeviceTopic()
+
 ```cpp
 String getDeviceTopic()
 ```
+
 Get the device subscription topic.
 
 **Returns:** Topic string (`device/{deviceId}`)
 
 #### getUpdateTopic()
+
 ```cpp
 String getUpdateTopic()
 ```
+
 Get the device update/publish topic.
 
 **Returns:** Topic string (`device/{deviceId}/update`)
@@ -548,9 +631,9 @@ Published messages follow this JSON format:
 
 ```json
 {
-    "id": 789,
-    "channelName": "v1",
-    "channelValue": true
+  "id": 789,
+  "channelName": "v1",
+  "channelValue": true
 }
 ```
 
@@ -562,6 +645,7 @@ Published messages follow this JSON format:
 ## Error Handling
 
 The library includes:
+
 - Automatic reconnection for lost MQTT connections
 - WiFi connection status checking
 - Serial output for debugging connection issues
@@ -587,19 +671,23 @@ Published: {"id":789,"channelName":"v3","channelValue":50}
 
 ## Troubleshooting
 
-1. **WiFi connection fails**: 
+1. **WiFi connection fails**:
+
    - Check SSID and password
    - Try using WiFiManager to avoid hardcoded credentials
 
-2. **MQTT connection fails**: 
+2. **MQTT connection fails**:
+
    - Verify broker URL, port, and credentials
    - Check network connectivity
 
-3. **Messages not received**: 
+3. **Messages not received**:
+
    - Ensure subscription was successful
    - Verify topic format
 
 4. **WiFiManager portal not appearing**:
+
    - Make sure you're connecting to the "FastIoT-Setup" access point
    - Try accessing 10.0.1.1 in a browser
    - Check serial output for status information
@@ -609,3 +697,7 @@ Published: {"id":789,"channelName":"v3","channelValue":50}
    - Check file paths and import statements
 
 For more detailed debugging, monitor the Serial output which provides comprehensive status information.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
