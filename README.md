@@ -10,7 +10,7 @@
   <br>
 </h1>
 
-<h4 align="center">A framework to quick start IoT project.</h4>
+<h4>A full-stack framework to fast-track your IoT development.</h4>
 </div>
 <p align="center">
  <a href="#features">Features</a> •
@@ -29,19 +29,19 @@
   <a href="#license">License</a>
 </p>
 <div align="center">
-<img src="https://img.shields.io/github/license/gnauqoa/fast-iot-pio?style=flat-square&logo=opensourceinitiative&logoColor=white&color=8a2be2" alt="license">
-<img src="https://img.shields.io/github/last-commit/gnauqoa/fast-iot-pio?style=flat-square&logo=git&logoColor=white&color=8a2be2" alt="last-commit">
-<img src="https://img.shields.io/github/languages/top/gnauqoa/fast-iot-pio?style=flat-square&color=8a2be2" alt="repo-top-language">
-<img src="https://img.shields.io/github/languages/count/gnauqoa/fast-iot-pio?style=flat-square&color=8a2be2" alt="repo-language-count">
-</div>
-<div align="center">
-  <img src="https://img.shields.io/badge/PlatformIO-FF6600.svg?style=flat-square&logo=platformio&logoColor=white" alt="PlatformIO">
-  <img src="https://img.shields.io/badge/ESP32-3C3C3C.svg?style=flat-square&logo=espressif&logoColor=white" alt="ESP32">
-  <img src="https://img.shields.io/badge/ESP8266-3C3C3C.svg?style=flat-square&logo=espressif&logoColor=white" alt="ESP8266">
-  <img src="https://img.shields.io/badge/C++-00599C.svg?style=flat-square&logo=c%2B%2B&logoColor=white" alt="C++">
-  <img src="https://img.shields.io/badge/WiFiManager-009688.svg?style=flat-square" alt="WiFiManager">
-  <img src="https://img.shields.io/badge/PubSubClient-4CAF50.svg?style=flat-square" alt="PubSubClient">
-  <img src="https://img.shields.io/badge/MQTT-660066.svg?style=flat-square&logo=MQTT&logoColor=white" alt="MQTT">
+  <!-- Platform & Boards -->
+  <img src="https://img.shields.io/badge/PlatformIO-FF6600.svg?style=flat-square&logo=platformio&logoColor=white" alt="PlatformIO" />
+  <img src="https://img.shields.io/badge/ESP32-3C3C3C.svg?style=flat-square&logo=espressif&logoColor=white" alt="ESP32" />
+  <img src="https://img.shields.io/badge/ESP8266-3C3C3C.svg?style=flat-square&logo=espressif&logoColor=white" alt="ESP8266" />
+
+  <!-- Language & Core Libraries -->
+  <img src="https://img.shields.io/badge/C++-00599C.svg?style=flat-square&logo=c%2B%2B&logoColor=white" alt="C++" />
+  <img src="https://img.shields.io/badge/ArduinoJson-28A745.svg?style=flat-square&logo=arduino&logoColor=white" alt="ArduinoJson" />
+  <img src="https://img.shields.io/badge/PubSubClient-4CAF50.svg?style=flat-square" alt="PubSubClient" />
+  <img src="https://img.shields.io/badge/WiFiManager-009688.svg?style=flat-square" alt="WiFiManager" />
+
+  <!-- Protocol -->
+  <img src="https://img.shields.io/badge/MQTT-660066.svg?style=flat-square&logo=mqtt&logoColor=white" alt="MQTT" />
 </div>
 </div>
 
